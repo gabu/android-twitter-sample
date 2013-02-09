@@ -11,6 +11,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -22,6 +25,12 @@ public class TimelineFragment extends ListFragment {
     private Twitter mTwitter;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -29,7 +38,23 @@ public class TimelineFragment extends ListFragment {
         setListAdapter(mAdapter);
 
         mTwitter = TwitterUtils.getTwitterInstance(getActivity());
-        loadTimeLine();
+        reloadTimeLine();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_timeline, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_reload:
+                reloadTimeLine();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private class TweetAdapter extends ArrayAdapter<String> {
@@ -39,7 +64,7 @@ public class TimelineFragment extends ListFragment {
         }
     }
 
-    public void loadTimeLine() {
+    public void reloadTimeLine() {
         AsyncTask<Void, Void, List<Status>> task = new AsyncTask<Void, Void, List<Status>>() {
             @Override
             protected void onPreExecute() {
@@ -63,6 +88,7 @@ public class TimelineFragment extends ListFragment {
                     for (twitter4j.Status status : result) {
                         tweets.add(status.getText());
                     }
+                    mAdapter.clear();
                     mAdapter.addAll(tweets);
                 } else {
                     Toast.makeText(getActivity(), "タイムラインの取得に失敗しました。。。", Toast.LENGTH_LONG).show();

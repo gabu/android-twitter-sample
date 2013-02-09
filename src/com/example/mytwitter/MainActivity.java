@@ -4,7 +4,6 @@ package com.example.mytwitter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.Menu;
 
 import com.example.mytwitter.TwitterOAuthFragment.TwitterOAuthListener;
 import com.example.mytwitter.util.TwitterUtils;
@@ -28,13 +27,6 @@ public class MainActivity extends FragmentActivity implements TwitterOAuthListen
                     .add(R.id.fragment_container, new TimelineFragment(), TAG_TIMELINE)
                     .commit();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        return true;
     }
 
     @Override
