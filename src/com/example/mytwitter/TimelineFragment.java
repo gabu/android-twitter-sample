@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.mytwitter.util.TwitterUtils;
+import com.loopj.android.image.SmartImageView;
 
 public class TimelineFragment extends ListFragment {
 
@@ -82,6 +83,8 @@ public class TimelineFragment extends ListFragment {
             screenName.setText("@" + item.getUser().getScreenName());
             TextView text = (TextView) convertView.findViewById(R.id.text);
             text.setText(item.getText());
+            SmartImageView icon = (SmartImageView) convertView.findViewById(R.id.icon);
+            icon.setImageUrl(item.getUser().getProfileImageURL());
             return convertView;
         }
     }
