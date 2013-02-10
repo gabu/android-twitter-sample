@@ -6,5 +6,11 @@
         android:orderInCategory="100"
         android:showAsAction="always"
         android:title="@string/menu_reload"/>
+    <item
+        android:id="@+id/menu_tweet"
+        android:icon="@drawable/ic_action_compose"
+        android:orderInCategory="200"
+        android:showAsAction="always"
+        android:title="@string/tweet"/>
 
 </menu>

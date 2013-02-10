@@ -35,6 +35,10 @@
                     android:scheme="gabu" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.example.mytwitter.TweetActivity"
+            android:label="@string/tweet"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 
 </manifest>

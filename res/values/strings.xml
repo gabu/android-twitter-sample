@@ -8,5 +8,6 @@
     <string name="twitter_consumer_key">VEsW2cljn8yfPTubxwmiw</string>
     <string name="twitter_consumer_secret">g0eNKD2Y5lDtrDkYI0GI4MvKcHt5g0ViMxDfOQU6vA</string>
     <string name="twitter_oauth">Twitter認証</string>
+    <string name="tweet">ツイート</string>
 
 </resources>
