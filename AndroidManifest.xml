@@ -16,14 +16,18 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.example.mytwitter.MainActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTask" >
+            android:name=".MainActivity"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".TwitterOAuthActivity"
+            android:label="@string/twitter_oauth"
+            android:launchMode="singleTask" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -36,7 +40,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.mytwitter.TweetActivity"
+            android:name=".TweetActivity"
             android:label="@string/tweet"
             android:windowSoftInputMode="adjustResize" />
     </application>

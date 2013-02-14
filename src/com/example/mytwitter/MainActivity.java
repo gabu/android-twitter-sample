@@ -1,34 +1,49 @@
 
 package com.example.mytwitter;
 
+import java.util.List;
+
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import android.app.Activity;
+import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.mytwitter.TwitterOAuthFragment.TwitterOAuthListener;
 import com.example.mytwitter.util.TwitterUtils;
+import com.loopj.android.image.SmartImageView;
 
-public class MainActivity extends FragmentActivity implements TwitterOAuthListener {
+public class MainActivity extends ListActivity {
 
-    private static final String TAG_TWITTER_OAUTH = "tag_twitter_oauth";
-    private static final String TAG_TIMELINE = "tag_timeline";
+    private TweetAdapter mAdapter;
+    private Twitter mTwitter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         if (!TwitterUtils.hasAccessToken(this)) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, new TwitterOAuthFragment(), TAG_TWITTER_OAUTH)
-                    .commit();
+            Intent intent = new Intent(this, TwitterOAuthActivity.class);
+            startActivity(intent);
+            finish();
         } else {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, new TimelineFragment(), TAG_TIMELINE)
-                    .commit();
+            mAdapter = new TweetAdapter(this);
+            setListAdapter(mAdapter);
+
+            mTwitter = TwitterUtils.getTwitterInstance(this);
+            reloadTimeLine();
         }
     }
 
@@ -43,11 +58,7 @@ public class MainActivity extends FragmentActivity implements TwitterOAuthListen
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_reload:
-                TimelineFragment f = (TimelineFragment) getSupportFragmentManager()
-                        .findFragmentByTag(TAG_TIMELINE);
-                if (f != null) {
-                    f.reloadTimeLine();
-                }
+                reloadTimeLine();
                 return true;
             case R.id.menu_tweet:
                 Intent intent = new Intent(this, TweetActivity.class);
@@ -57,20 +68,60 @@ public class MainActivity extends FragmentActivity implements TwitterOAuthListen
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        TwitterOAuthFragment f = (TwitterOAuthFragment) getSupportFragmentManager()
-                .findFragmentByTag(TAG_TWITTER_OAUTH);
-        if (f != null) {
-            f.onNewIntent(intent);
+    private class TweetAdapter extends ArrayAdapter<Status> {
+
+        private LayoutInflater mInflater;
+
+        public TweetAdapter(Context context) {
+            super(context, android.R.layout.simple_list_item_1);
+            mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = mInflater.inflate(R.layout.list_item_tweet, null);
+            }
+            Status item = getItem(position);
+            TextView name = (TextView) convertView.findViewById(R.id.name);
+            name.setText(item.getUser().getName());
+            TextView screenName = (TextView) convertView.findViewById(R.id.screen_name);
+            screenName.setText("@" + item.getUser().getScreenName());
+            TextView text = (TextView) convertView.findViewById(R.id.text);
+            text.setText(item.getText());
+            SmartImageView icon = (SmartImageView) convertView.findViewById(R.id.icon);
+            icon.setImageUrl(item.getUser().getProfileImageURL());
+            return convertView;
         }
     }
 
-    @Override
-    public void onTwitterOAuthSuccess() {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new TimelineFragment(), TAG_TIMELINE)
-                .commit();
+    private void reloadTimeLine() {
+        AsyncTask<Void, Void, List<Status>> task = new AsyncTask<Void, Void, List<Status>>() {
+            @Override
+            protected List<twitter4j.Status> doInBackground(Void... params) {
+                try {
+                    return mTwitter.getHomeTimeline();
+                } catch (TwitterException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(List<twitter4j.Status> result) {
+                if (result != null) {
+                    mAdapter.clear();
+                    mAdapter.addAll(result);
+                    getListView().setSelection(0);
+                } else {
+                    showToast("タイムラインの取得に失敗しました。。。");
+                }
+            }
+        };
+        task.execute();
+    }
+
+    private void showToast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 }

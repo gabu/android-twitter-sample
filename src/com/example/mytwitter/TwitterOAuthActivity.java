@@ -10,21 +10,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.mytwitter.util.TwitterUtils;
 
-public class TwitterOAuthFragment extends Fragment {
-
-    public interface TwitterOAuthListener {
-        void onTwitterOAuthSuccess();
-    }
-
-    private TwitterOAuthListener mTwitterOAuthListener;
+public class TwitterOAuthActivity extends Activity {
 
     private String mCallbackURL;
     private Twitter mTwitter;
@@ -33,33 +24,17 @@ public class TwitterOAuthFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_twitter_oauth);
 
         mCallbackURL = getString(R.string.twitter_callback_url);
-        mTwitter = TwitterUtils.getTwitterInstance(getActivity());
-    }
+        mTwitter = TwitterUtils.getTwitterInstance(this);
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_twitter_oauth, container, false);
-        view.findViewById(R.id.button_twitter_oauth).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_twitter_oauth).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startAuthorize();
             }
         });
-        return view;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
-        if (activity instanceof TwitterOAuthListener) {
-            mTwitterOAuthListener = (TwitterOAuthListener) activity;
-        } else {
-            throw new ClassCastException(
-                    "TwitterOAuthFragmentを扱うActivityではTwitterOAuthListenerインタフェースを実装してください。");
-        }
     }
 
     /**
@@ -93,11 +68,7 @@ public class TwitterOAuthFragment extends Fragment {
         task.execute();
     }
 
-    /**
-     * Fragmentには自動的に呼び出されるonNewIntent()はないのでActivityから明示的に呼び出してもらう必要があります。
-     * 
-     * @param intent
-     */
+    @Override
     public void onNewIntent(Intent intent) {
         if (intent == null
                 || intent.getData() == null
@@ -121,15 +92,25 @@ public class TwitterOAuthFragment extends Fragment {
             protected void onPostExecute(AccessToken accessToken) {
                 if (accessToken != null) {
                     // 認証成功！
-                    TwitterUtils.storeAccessToken(getActivity(), accessToken);
-                    Toast.makeText(getActivity(), "認証成功！", Toast.LENGTH_LONG).show();
-                    mTwitterOAuthListener.onTwitterOAuthSuccess();
+                    showToast("認証成功！");
+                    successOAuth(accessToken);
                 } else {
                     // 認証失敗。。。
-                    Toast.makeText(getActivity(), "認証失敗。。。", Toast.LENGTH_LONG).show();
+                    showToast("認証失敗。。。");
                 }
             }
         };
         task.execute(verifier);
+    }
+    
+    private void successOAuth(AccessToken accessToken) {
+        TwitterUtils.storeAccessToken(this, accessToken);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+    
+    private void showToast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 }
