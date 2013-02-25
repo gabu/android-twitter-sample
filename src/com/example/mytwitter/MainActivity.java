@@ -111,7 +111,9 @@ public class MainActivity extends ListActivity {
             protected void onPostExecute(List<twitter4j.Status> result) {
                 if (result != null) {
                     mAdapter.clear();
-                    mAdapter.addAll(result);
+                    for (twitter4j.Status status : result) {
+                        mAdapter.add(status);
+                    }
                     getListView().setSelection(0);
                 } else {
                     showToast("タイムラインの取得に失敗しました。。。");
