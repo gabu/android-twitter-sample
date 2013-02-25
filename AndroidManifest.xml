@@ -26,7 +26,6 @@
         </activity>
         <activity
             android:name=".TwitterOAuthActivity"
-            android:label="@string/twitter_oauth"
             android:launchMode="singleTask" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -41,7 +40,6 @@
         </activity>
         <activity
             android:name=".TweetActivity"
-            android:label="@string/tweet"
             android:windowSoftInputMode="adjustResize" />
     </application>
 
