@@ -17,6 +17,7 @@ import com.example.mytwitter.util.TwitterUtils;
 
 public class TwitterOAuthActivity extends Activity {
 
+    private static final String REQUEST_TOKEN = "request_token";
     private String mCallbackURL;
     private Twitter mTwitter;
     private RequestToken mRequestToken;
@@ -35,6 +36,18 @@ public class TwitterOAuthActivity extends Activity {
                 startAuthorize();
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(REQUEST_TOKEN, mRequestToken);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mRequestToken = (RequestToken) savedInstanceState.getSerializable(REQUEST_TOKEN);
     }
 
     /**
@@ -102,14 +115,14 @@ public class TwitterOAuthActivity extends Activity {
         };
         task.execute(verifier);
     }
-    
+
     private void successOAuth(AccessToken accessToken) {
         TwitterUtils.storeAccessToken(this, accessToken);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }
-    
+
     private void showToast(String text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
